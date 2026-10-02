@@ -368,4 +368,75 @@ it("respeta la secuencia completa de round robin", () => {
 
   expect(simulador.obtenerMetricas().cambiosContexto).toBe(1);
 });
+
+it("admite en el siguiente tick después de liberar memoria", () => {
+  const simulador = new Simulador(1000, 2);
+
+  simulador.registrarProceso(1, 700, 1);
+  simulador.registrarProceso(2, 500, 5);
+
+  simulador.avanzarTick();
+
+  let procesos = simulador.obtenerProcesos();
+
+  expect(procesos[0].obtenerEstado()).toBe(EstadoProceso.TERMINADO);
+  expect(procesos[1].obtenerEstado()).toBe(
+    EstadoProceso.ESPERANDO_MEMORIA
+  );
+
+  simulador.avanzarTick();
+
+  procesos = simulador.obtenerProcesos();
+
+  expect(procesos[1].obtenerEstado()).toBe(EstadoProceso.EJECUTANDO);
+});
+
+it("no duplica procesos entre los estados del sistema", () => {
+  const simulador = new Simulador(1024, 2);
+
+  simulador.registrarProceso(1, 256, 5);
+  simulador.registrarProceso(2, 256, 5);
+  simulador.registrarProceso(3, 256, 5);
+
+  simulador.avanzarTick();
+
+  const estado = simulador.obtenerEstado();
+
+  const pids = [
+    ...(estado.procesoEnCpu ? [estado.procesoEnCpu.pid] : []),
+    ...estado.listos.map((proceso) => proceso.pid),
+    ...estado.esperandoMemoria.map((proceso) => proceso.pid),
+    ...estado.bloqueados.map((proceso) => proceso.pid),
+    ...estado.terminados.map((proceso) => proceso.pid),
+  ];
+
+  expect(new Set(pids).size).toBe(pids.length);
+  expect(pids).toHaveLength(3);
+});
+
+it("mantiene los bloques de memoria sin solapamientos", () => {
+  const simulador = new Simulador(1000, 2);
+
+  simulador.memoria.asignarMemoria(1, 200);
+  simulador.memoria.asignarMemoria(2, 300);
+  simulador.memoria.asignarMemoria(3, 100);
+
+  const bloques = simulador.memoria.obtenerBloques();
+
+  for (let i = 0; i < bloques.length - 1; i++) {
+    const finBloqueActual =
+      bloques[i].inicio + bloques[i].tamanio;
+
+    expect(finBloqueActual).toBeLessThanOrEqual(
+      bloques[i + 1].inicio
+    );
+  }
+
+  const tamanioTotal = bloques.reduce(
+    (total, bloque) => total + bloque.tamanio,
+    0
+  );
+
+  expect(tamanioTotal).toBe(1000);
+});
 });
