@@ -19,4 +19,31 @@ describe("Simulador", () => {
   it("rechaza una memoria inválida", () => {
     expect(() => new Simulador(0, 2)).toThrow();
   });
+
+  it("registra y consulta procesos", () => {
+  const simulador = new Simulador(1024, 2);
+
+  simulador.registrarProceso(1, 256, 5);
+
+  const procesos = simulador.obtenerProcesos();
+
+  expect(procesos).toHaveLength(1);
+  expect(procesos[0].pid).toBe(1);
+  expect(procesos[0].memoriaRequerida).toBe(256);
+  expect(procesos[0].tiempoCpuTotal).toBe(5);
+});
+
+it("rechaza un PID duplicado", () => {
+  const simulador = new Simulador(1024, 2);
+
+  simulador.registrarProceso(1, 256, 5);
+
+  expect(() => simulador.registrarProceso(1, 128, 3)).toThrow();
+});
+
+it("rechaza un proceso mayor que la memoria total", () => {
+  const simulador = new Simulador(1024, 2);
+
+  expect(() => simulador.registrarProceso(1, 2048, 5)).toThrow();
+});
 });
