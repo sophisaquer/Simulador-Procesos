@@ -4,12 +4,15 @@ import { IProceso } from "../interfaces/IProceso";
 import { Memoria } from "./Memoria";
 import { Proceso } from "./Proceso";
 import { EstadoProceso } from "./EstadoProceso";
+import { IPlanificador } from "../interfaces/IPlanificador";
+import { PlanificadorRoundRobin } from "./PlanificadorRoundRobin";
 
 export class Simulador implements ISimulador {
   public readonly memoria: IMemoria;
   private tick: number = 0;
 
   private procesos: Proceso[] = [];
+  private readonly planificador: IPlanificador;
 
   constructor(
     tamanioMemoria: number,
@@ -20,6 +23,7 @@ export class Simulador implements ISimulador {
     }
 
     this.memoria = new Memoria(tamanioMemoria);
+    this.planificador = new PlanificadorRoundRobin();
   }
 
   registrarProceso(
@@ -44,30 +48,31 @@ export class Simulador implements ISimulador {
   }
 
   get tickActual(): number {
-  return this.tick;
-}
-
-avanzarTick(): void {
-  for (const proceso of this.procesos) {
-    if (
-      proceso.obtenerEstado() !== EstadoProceso.NUEVO &&
-      proceso.obtenerEstado() !== EstadoProceso.ESPERANDO_MEMORIA
-    ) {
-      continue;
-    }
-
-    const asignado = this.memoria.asignarMemoria(
-      proceso.pid,
-      proceso.memoriaRequerida
-    );
-
-    if (asignado) {
-      proceso.marcarListo();
-    } else {
-      proceso.marcarEsperandoMemoria();
-    }
+    return this.tick;
   }
 
-  this.tick++;
-}
+  avanzarTick(): void {
+    for (const proceso of this.procesos) {
+      if (
+        proceso.obtenerEstado() !== EstadoProceso.NUEVO &&
+        proceso.obtenerEstado() !== EstadoProceso.ESPERANDO_MEMORIA
+      ) {
+        continue;
+      }
+
+      const asignado = this.memoria.asignarMemoria(
+        proceso.pid,
+        proceso.memoriaRequerida
+      );
+
+      if (asignado) {
+        proceso.marcarListo();
+        this.planificador.encolar(proceso);
+      } else {
+        proceso.marcarEsperandoMemoria();
+      }
+    }
+
+    this.tick++;
+  }
 }
