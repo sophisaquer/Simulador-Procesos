@@ -20,4 +20,19 @@ describe("Proceso", () => {
     expect(() => new Proceso(1, 0, 5)).toThrow();
     expect(() => new Proceso(1, 256, 0)).toThrow();
   });
+  it("pasa al estado esperando memoria", () => {
+  const proceso = new Proceso(1, 256, 5);
+
+  proceso.marcarEsperandoMemoria();
+
+  expect(proceso.obtenerEstado()).toBe(EstadoProceso.ESPERANDO_MEMORIA);
+});
+
+it("pasa al estado listo", () => {
+  const proceso = new Proceso(1, 256, 5);
+
+  proceso.marcarListo();
+
+  expect(proceso.obtenerEstado()).toBe(EstadoProceso.LISTO);
+});
 });
