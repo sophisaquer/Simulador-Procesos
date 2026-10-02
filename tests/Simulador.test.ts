@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Simulador } from "../src/modelos/Simulador";
+import { EstadoProceso } from "../src/modelos/EstadoProceso";
 
 describe("Simulador", () => {
   it("inicia con la configuración indicada", () => {
@@ -45,5 +46,32 @@ it("rechaza un proceso mayor que la memoria total", () => {
   const simulador = new Simulador(1024, 2);
 
   expect(() => simulador.registrarProceso(1, 2048, 5)).toThrow();
+});
+
+it("pasa un proceso a listo cuando consigue memoria", () => {
+  const simulador = new Simulador(1024, 2);
+
+  simulador.registrarProceso(1, 256, 5);
+  simulador.avanzarTick();
+
+  const proceso = simulador.obtenerProcesos()[0];
+
+  expect(proceso.obtenerEstado()).toBe(EstadoProceso.LISTO);
+  expect(simulador.tickActual).toBe(1);
+});
+
+it("deja esperando memoria a un proceso que no encuentra espacio", () => {
+  const simulador = new Simulador(1024, 2);
+
+  simulador.memoria.asignarMemoria(99, 1024);
+  simulador.registrarProceso(1, 256, 5);
+
+  simulador.avanzarTick();
+
+  const proceso = simulador.obtenerProcesos()[0];
+
+  expect(proceso.obtenerEstado()).toBe(
+    EstadoProceso.ESPERANDO_MEMORIA
+  );
 });
 });
