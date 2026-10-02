@@ -83,13 +83,23 @@ avanzarTick(): void {
     }
   }
 
- if (this.procesoEnCpu !== null) {
+if (this.procesoEnCpu !== null) {
   this.procesoEnCpu.ejecutarTick();
 
   if (this.procesoEnCpu.obtenerCpuRestante() === 0) {
     this.procesoEnCpu.marcarTerminado();
     this.memoria.liberarMemoria(this.procesoEnCpu.pid);
     this.procesoEnCpu = null;
+  } else if (
+    this.procesoEnCpu.obtenerQuantumConsumido() === this.quantum
+  ) {
+    if (!this.planificador.estaVacia()) {
+      this.procesoEnCpu.marcarListo();
+      this.planificador.encolar(this.procesoEnCpu);
+      this.procesoEnCpu = null;
+    } else {
+      this.procesoEnCpu.reiniciarQuantum();
+    }
   }
 }
 
