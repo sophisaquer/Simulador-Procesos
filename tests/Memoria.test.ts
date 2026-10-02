@@ -66,16 +66,21 @@ it("fusiona con el bloque libre de la izquierda", () => {
 
   memoria.asignarMemoria(1, 200);
   memoria.asignarMemoria(2, 300);
+  memoria.asignarMemoria(3, 500);
 
   memoria.liberarMemoria(1);
   memoria.liberarMemoria(2);
 
   const bloques = memoria.obtenerBloques();
 
-  expect(bloques).toHaveLength(1);
+  expect(bloques).toHaveLength(2);
+
   expect(bloques[0].inicio).toBe(0);
-  expect(bloques[0].tamanio).toBe(1000);
+  expect(bloques[0].tamanio).toBe(500);
   expect(bloques[0].estaLibre()).toBe(true);
+
+  expect(bloques[1].pid).toBe(3);
+  expect(bloques[1].tamanio).toBe(500);
 });
 
 it("fusiona bloques libres a ambos lados", () => {
@@ -121,7 +126,6 @@ it("fusiona con el bloque libre de la derecha", () => {
   expect(bloques[1].tamanio).toBe(800);
   expect(bloques[1].estaLibre()).toBe(true);
 });
-});
 
 it("rechaza parámetros inválidos al asignar memoria", () => {
   const memoria = new Memoria(1024);
@@ -140,4 +144,5 @@ it("rechaza parámetros inválidos al asignar memoria", () => {
   expect(bloques[0].inicio).toBe(0);
   expect(bloques[0].tamanio).toBe(1024);
   expect(bloques[0].estaLibre()).toBe(true);
+});
 });
