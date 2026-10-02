@@ -56,4 +56,44 @@ export class Memoria implements IMemoria {
     this.bloques.splice(indice, 1, ocupado, libre);
     return true;
   }
+
+  liberarMemoria(pid: number): boolean {
+  const indice = this.bloques.findIndex(
+    (bloque) => bloque.pid === pid
+  );
+
+  if (indice === -1) {
+    return false;
+  }
+
+  const bloque = this.bloques[indice];
+
+  this.bloques.splice(
+    indice,
+    1,
+    new BloqueMemoria(bloque.inicio, bloque.tamanio)
+  );
+
+  this.fusionarBloquesLibres();
+  return true;
+}
+
+private fusionarBloquesLibres(): void {
+  const fusionados: BloqueMemoria[] = [];
+
+  for (const bloque of this.bloques) {
+    const ultimo = fusionados[fusionados.length - 1];
+
+    if (ultimo?.estaLibre() && bloque.estaLibre()) {
+      fusionados[fusionados.length - 1] = new BloqueMemoria(
+        ultimo.inicio,
+        ultimo.tamanio + bloque.tamanio
+      );
+    } else {
+      fusionados.push(bloque);
+    }
+  }
+
+  this.bloques = fusionados;
+}
 }

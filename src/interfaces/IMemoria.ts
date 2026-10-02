@@ -5,4 +5,5 @@ export interface IMemoria {
 
   obtenerBloques(): readonly IBloqueMemoria[];
   asignarMemoria(pid: number, tamanioRequerido: number): boolean;
+  liberarMemoria(pid: number): boolean;
 }
