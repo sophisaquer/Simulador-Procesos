@@ -6,6 +6,7 @@ import { Proceso } from "./Proceso";
 import { EstadoProceso } from "./EstadoProceso";
 import { IPlanificador } from "../interfaces/IPlanificador";
 import { PlanificadorRoundRobin } from "./PlanificadorRoundRobin";
+import { IMetricas } from "../interfaces/IMetricas";
 
 export class Simulador implements ISimulador {
   public readonly memoria: IMemoria;
@@ -14,6 +15,8 @@ export class Simulador implements ISimulador {
   private procesos: Proceso[] = [];
   private readonly planificador: IPlanificador;
   private procesoEnCpu: IProceso | null = null;
+  private ticksCpuOcupada: number = 0;
+private cambiosContexto: number = 0;
 
   constructor(
     tamanioMemoria: number,
@@ -51,6 +54,46 @@ export class Simulador implements ISimulador {
   get tickActual(): number {
     return this.tick;
   }
+
+  obtenerMetricas(): IMetricas {
+  const bloques = this.memoria.obtenerBloques();
+  const bloquesLibres = bloques.filter((bloque) => bloque.estaLibre());
+
+  const memoriaLibreTotal = bloquesLibres.reduce(
+    (total, bloque) => total + bloque.tamanio,
+    0
+  );
+
+  const mayorBloqueLibre = bloquesLibres.reduce(
+    (mayor, bloque) => Math.max(mayor, bloque.tamanio),
+    0
+  );
+
+  const memoriaOcupada =
+    this.memoria.tamanioTotal - memoriaLibreTotal;
+
+  const ocupacionMemoria =
+    (memoriaOcupada / this.memoria.tamanioTotal) * 100;
+
+  const utilizacionCpu =
+    this.tick === 0
+      ? 0
+      : (this.ticksCpuOcupada / this.tick) * 100;
+
+  const fragmentacionExterna =
+    memoriaLibreTotal === 0
+      ? 0
+      : (1 - mayorBloqueLibre / memoriaLibreTotal) * 100;
+
+  return {
+    ocupacionMemoria,
+    utilizacionCpu,
+    cambiosContexto: this.cambiosContexto,
+    memoriaLibreTotal,
+    mayorBloqueLibre,
+    fragmentacionExterna,
+  };
+}
 
 avanzarTick(): void {
   for (const proceso of this.procesos) {
@@ -96,6 +139,7 @@ avanzarTick(): void {
   }
 
 if (this.procesoEnCpu !== null) {
+    this.ticksCpuOcupada++;
   this.procesoEnCpu.ejecutarTick();
 
   if (this.procesoEnCpu.obtenerCpuRestante() === 0) {
@@ -105,12 +149,14 @@ if (this.procesoEnCpu !== null) {
 } else if (
   this.procesoEnCpu.debeBloquearsePorEntradaSalida()
 ) {
+    this.cambiosContexto++;
   this.procesoEnCpu.bloquearPorEntradaSalida();
   this.procesoEnCpu = null;
 } else if (
   this.procesoEnCpu.obtenerQuantumConsumido() === this.quantum
 ) {
   if (!this.planificador.estaVacia()) {
+    this.cambiosContexto++;
     this.procesoEnCpu.marcarListo();
     this.planificador.encolar(this.procesoEnCpu);
     this.procesoEnCpu = null;
