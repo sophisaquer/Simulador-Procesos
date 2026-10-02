@@ -52,41 +52,41 @@ export class Simulador implements ISimulador {
     return this.tick;
   }
 
-  avanzarTick(): void {
-    for (const proceso of this.procesos) {
-      if (
-        proceso.obtenerEstado() !== EstadoProceso.NUEVO &&
-        proceso.obtenerEstado() !== EstadoProceso.ESPERANDO_MEMORIA
-      ) {
-        continue;
-      }
-
-      if (this.procesoEnCpu === null) {
-  this.procesoEnCpu = this.planificador.desencolar() ?? null;
-
-  if (this.procesoEnCpu !== null) {
-    this.procesoEnCpu.marcarEjecutando();
-    this.procesoEnCpu.reiniciarQuantum();
-  }
-}
-
-if (this.procesoEnCpu !== null) {
-  this.procesoEnCpu.ejecutarTick();
-}
-
-      const asignado = this.memoria.asignarMemoria(
-        proceso.pid,
-        proceso.memoriaRequerida
-      );
-
-      if (asignado) {
-        proceso.marcarListo();
-        this.planificador.encolar(proceso);
-      } else {
-        proceso.marcarEsperandoMemoria();
-      }
+avanzarTick(): void {
+  for (const proceso of this.procesos) {
+    if (
+      proceso.obtenerEstado() !== EstadoProceso.NUEVO &&
+      proceso.obtenerEstado() !== EstadoProceso.ESPERANDO_MEMORIA
+    ) {
+      continue;
     }
 
-    this.tick++;
+    const asignado = this.memoria.asignarMemoria(
+      proceso.pid,
+      proceso.memoriaRequerida
+    );
+
+    if (asignado) {
+      proceso.marcarListo();
+      this.planificador.encolar(proceso);
+    } else {
+      proceso.marcarEsperandoMemoria();
+    }
   }
+
+  if (this.procesoEnCpu === null) {
+    this.procesoEnCpu = this.planificador.desencolar() ?? null;
+
+    if (this.procesoEnCpu !== null) {
+      this.procesoEnCpu.marcarEjecutando();
+      this.procesoEnCpu.reiniciarQuantum();
+    }
+  }
+
+  if (this.procesoEnCpu !== null) {
+    this.procesoEnCpu.ejecutarTick();
+  }
+
+  this.tick++;
+}
 }

@@ -56,7 +56,7 @@ it("pasa un proceso a listo cuando consigue memoria", () => {
 
   const proceso = simulador.obtenerProcesos()[0];
 
-  expect(proceso.obtenerEstado()).toBe(EstadoProceso.LISTO);
+expect(proceso.obtenerEstado()).toBe(EstadoProceso.EJECUTANDO);
   expect(simulador.tickActual).toBe(1);
 });
 
@@ -90,6 +90,33 @@ it("admite otro proceso aunque uno anterior no entre en memoria", () => {
   expect(procesos[0].obtenerEstado()).toBe(
     EstadoProceso.ESPERANDO_MEMORIA
   );
+expect(procesos[1].obtenerEstado()).toBe(EstadoProceso.EJECUTANDO);});
+
+it("despacha y ejecuta un proceso durante un tick", () => {
+  const simulador = new Simulador(1024, 2);
+
+  simulador.registrarProceso(1, 256, 5);
+  simulador.avanzarTick();
+
+  const proceso = simulador.obtenerProcesos()[0];
+
+  expect(proceso.obtenerEstado()).toBe(EstadoProceso.EJECUTANDO);
+  expect(proceso.obtenerCpuRestante()).toBe(4);
+  expect(proceso.obtenerQuantumConsumido()).toBe(1);
+});
+
+it("permite que solo un proceso consuma CPU por tick", () => {
+  const simulador = new Simulador(1024, 2);
+
+  simulador.registrarProceso(1, 256, 5);
+  simulador.registrarProceso(2, 256, 5);
+
+  simulador.avanzarTick();
+
+  const procesos = simulador.obtenerProcesos();
+
+  expect(procesos[0].obtenerCpuRestante()).toBe(4);
+  expect(procesos[1].obtenerCpuRestante()).toBe(5);
   expect(procesos[1].obtenerEstado()).toBe(EstadoProceso.LISTO);
 });
 });
