@@ -11,4 +11,8 @@ export interface IProceso {
   obtenerTiempoBloqueoRestante(): number;
   marcarEsperandoMemoria(): void;
   marcarListo(): void;
+  marcarEjecutando(): void;
+  ejecutarTick(): void;
+  reiniciarQuantum(): void;
+  marcarTerminado(): void;
 }

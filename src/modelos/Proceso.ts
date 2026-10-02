@@ -52,4 +52,23 @@ export class Proceso implements IProceso {
 marcarListo(): void {
   this.estado = EstadoProceso.LISTO;
 }
+
+marcarEjecutando(): void {
+  this.estado = EstadoProceso.EJECUTANDO;
+}
+
+ejecutarTick(): void {
+  if (this.cpuRestante > 0) {
+    this.cpuRestante--;
+    this.quantumConsumido++;
+  }
+}
+
+reiniciarQuantum(): void {
+  this.quantumConsumido = 0;
+}
+
+marcarTerminado(): void {
+  this.estado = EstadoProceso.TERMINADO;
+}
 }
