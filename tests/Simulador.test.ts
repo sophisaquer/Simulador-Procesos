@@ -74,4 +74,22 @@ it("deja esperando memoria a un proceso que no encuentra espacio", () => {
     EstadoProceso.ESPERANDO_MEMORIA
   );
 });
+
+it("admite otro proceso aunque uno anterior no entre en memoria", () => {
+  const simulador = new Simulador(1024, 2);
+
+  simulador.memoria.asignarMemoria(99, 800);
+
+  simulador.registrarProceso(1, 300, 5);
+  simulador.registrarProceso(2, 200, 5);
+
+  simulador.avanzarTick();
+
+  const procesos = simulador.obtenerProcesos();
+
+  expect(procesos[0].obtenerEstado()).toBe(
+    EstadoProceso.ESPERANDO_MEMORIA
+  );
+  expect(procesos[1].obtenerEstado()).toBe(EstadoProceso.LISTO);
+});
 });
