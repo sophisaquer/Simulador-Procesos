@@ -172,4 +172,46 @@ it("renueva el quantum si no hay otro proceso listo", () => {
   expect(proceso.obtenerCpuRestante()).toBe(3);
   expect(proceso.obtenerQuantumConsumido()).toBe(0);
 });
+
+it("bloquea un proceso por entrada y salida sin liberar su memoria", () => {
+  const simulador = new Simulador(1024, 2);
+
+  simulador.registrarProceso(1, 256, 5);
+
+  const proceso = simulador.obtenerProcesos()[0];
+  proceso.configurarEntradaSalida(1, 2);
+
+  simulador.avanzarTick();
+
+  expect(proceso.obtenerEstado()).toBe(EstadoProceso.BLOQUEADO);
+  expect(proceso.obtenerCpuRestante()).toBe(4);
+  expect(proceso.obtenerTiempoBloqueoRestante()).toBe(2);
+
+  const bloques = simulador.memoria.obtenerBloques();
+  expect(bloques.some((bloque) => bloque.pid === 1)).toBe(true);
+});
+
+it("retorna a listo después del bloqueo y puede volver a ejecutar", () => {
+  const simulador = new Simulador(1024, 2);
+
+  simulador.registrarProceso(1, 256, 5);
+
+  const proceso = simulador.obtenerProcesos()[0];
+  proceso.configurarEntradaSalida(1, 2);
+
+  simulador.avanzarTick();
+
+  expect(proceso.obtenerEstado()).toBe(EstadoProceso.BLOQUEADO);
+  expect(proceso.obtenerCpuRestante()).toBe(4);
+
+  simulador.avanzarTick();
+
+  expect(proceso.obtenerEstado()).toBe(EstadoProceso.BLOQUEADO);
+  expect(proceso.obtenerCpuRestante()).toBe(4);
+
+  simulador.avanzarTick();
+
+  expect(proceso.obtenerEstado()).toBe(EstadoProceso.EJECUTANDO);
+  expect(proceso.obtenerCpuRestante()).toBe(3);
+});
 });
