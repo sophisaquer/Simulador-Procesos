@@ -245,4 +245,46 @@ it("calcula la fragmentación externa de la memoria", () => {
   expect(metricas.mayorBloqueLibre).toBe(300);
   expect(metricas.fragmentacionExterna).toBe(25);
 });
+
+it("calcula la utilización de cpu con ticks ocupados y ociosos", () => {
+  const simulador = new Simulador(1024, 2);
+
+  simulador.registrarProceso(1, 256, 1);
+
+  simulador.avanzarTick();
+  simulador.avanzarTick();
+
+  const metricas = simulador.obtenerMetricas();
+
+  expect(metricas.utilizacionCpu).toBe(50);
+});
+
+it("cuenta un cambio de contexto al rotar por quantum", () => {
+  const simulador = new Simulador(1024, 2);
+
+  simulador.registrarProceso(1, 256, 5);
+  simulador.registrarProceso(2, 256, 5);
+
+  simulador.avanzarTick();
+  simulador.avanzarTick();
+
+  const metricas = simulador.obtenerMetricas();
+
+  expect(metricas.cambiosContexto).toBe(1);
+});
+
+it("cuenta un cambio de contexto cuando un proceso se bloquea", () => {
+  const simulador = new Simulador(1024, 2);
+
+  simulador.registrarProceso(1, 256, 5);
+
+  const proceso = simulador.obtenerProcesos()[0];
+  proceso.configurarEntradaSalida(1, 2);
+
+  simulador.avanzarTick();
+
+  const metricas = simulador.obtenerMetricas();
+
+  expect(metricas.cambiosContexto).toBe(1);
+});
 });
