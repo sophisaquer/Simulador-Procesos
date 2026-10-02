@@ -13,6 +13,7 @@ export class Simulador implements ISimulador {
 
   private procesos: Proceso[] = [];
   private readonly planificador: IPlanificador;
+  private procesoEnCpu: IProceso | null = null;
 
   constructor(
     tamanioMemoria: number,
@@ -59,6 +60,19 @@ export class Simulador implements ISimulador {
       ) {
         continue;
       }
+
+      if (this.procesoEnCpu === null) {
+  this.procesoEnCpu = this.planificador.desencolar() ?? null;
+
+  if (this.procesoEnCpu !== null) {
+    this.procesoEnCpu.marcarEjecutando();
+    this.procesoEnCpu.reiniciarQuantum();
+  }
+}
+
+if (this.procesoEnCpu !== null) {
+  this.procesoEnCpu.ejecutarTick();
+}
 
       const asignado = this.memoria.asignarMemoria(
         proceso.pid,
