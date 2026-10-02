@@ -3,10 +3,11 @@ import { IMemoria } from "../interfaces/IMemoria";
 import { IProceso } from "../interfaces/IProceso";
 import { Memoria } from "./Memoria";
 import { Proceso } from "./Proceso";
+import { EstadoProceso } from "./EstadoProceso";
 
 export class Simulador implements ISimulador {
   public readonly memoria: IMemoria;
-  public readonly tickActual: number = 0;
+  private tick: number = 0;
 
   private procesos: Proceso[] = [];
 
@@ -41,4 +42,32 @@ export class Simulador implements ISimulador {
   obtenerProcesos(): readonly IProceso[] {
     return [...this.procesos];
   }
+
+  get tickActual(): number {
+  return this.tick;
+}
+
+avanzarTick(): void {
+  for (const proceso of this.procesos) {
+    if (
+      proceso.obtenerEstado() !== EstadoProceso.NUEVO &&
+      proceso.obtenerEstado() !== EstadoProceso.ESPERANDO_MEMORIA
+    ) {
+      continue;
+    }
+
+    const asignado = this.memoria.asignarMemoria(
+      proceso.pid,
+      proceso.memoriaRequerida
+    );
+
+    if (asignado) {
+      proceso.marcarListo();
+    } else {
+      proceso.marcarEsperandoMemoria();
+    }
+  }
+
+  this.tick++;
+}
 }

@@ -13,4 +13,6 @@ export interface ISimulador {
   ): void;
 
   obtenerProcesos(): readonly IProceso[];
+
+  avanzarTick(): void;
 }
