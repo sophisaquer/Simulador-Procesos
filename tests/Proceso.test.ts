@@ -39,6 +39,7 @@ it("pasa al estado listo", () => {
 it("ejecuta un tick de CPU", () => {
   const proceso = new Proceso(1, 256, 5);
 
+  proceso.marcarListo();
   proceso.marcarEjecutando();
   proceso.ejecutarTick();
 
@@ -50,6 +51,9 @@ it("ejecuta un tick de CPU", () => {
 it("reinicia el quantum consumido", () => {
   const proceso = new Proceso(1, 256, 5);
 
+  proceso.marcarListo();
+  proceso.marcarEjecutando();
+
   proceso.ejecutarTick();
   proceso.ejecutarTick();
   proceso.reiniciarQuantum();
@@ -57,18 +61,26 @@ it("reinicia el quantum consumido", () => {
   expect(proceso.obtenerQuantumConsumido()).toBe(0);
 });
 
-it("pasa al estado terminado", () => {
-  const proceso = new Proceso(1, 256, 5);
+it("pasa al estado terminado cuando agota su CPU", () => {
+  const proceso = new Proceso(1, 256, 1);
 
+  proceso.marcarListo();
+  proceso.marcarEjecutando();
+  proceso.ejecutarTick();
   proceso.marcarTerminado();
 
-  expect(proceso.obtenerEstado()).toBe(EstadoProceso.TERMINADO);
+  expect(proceso.obtenerEstado()).toBe(
+    EstadoProceso.TERMINADO
+  );
 });
 
 it("se bloquea al alcanzar el momento de entrada y salida", () => {
   const proceso = new Proceso(1, 256, 5);
 
   proceso.configurarEntradaSalida(2, 2);
+
+  proceso.marcarListo();
+  proceso.marcarEjecutando();
 
   proceso.ejecutarTick();
   proceso.ejecutarTick();
@@ -85,6 +97,10 @@ it("vuelve a listo cuando termina el bloqueo", () => {
   const proceso = new Proceso(1, 256, 5);
 
   proceso.configurarEntradaSalida(1, 2);
+
+  proceso.marcarListo();
+  proceso.marcarEjecutando();
+
   proceso.ejecutarTick();
   proceso.bloquearPorEntradaSalida();
 
@@ -104,5 +120,17 @@ it("rechaza eventos de entrada y salida inválidos", () => {
   expect(() => proceso.configurarEntradaSalida(1, 0)).toThrow();
   expect(() => proceso.configurarEntradaSalida(1.5, 2)).toThrow();
   expect(() => proceso.configurarEntradaSalida(1, 2.5)).toThrow();
+});
+
+it("rechaza transiciones de estado inválidas", () => {
+  const proceso = new Proceso(1, 256, 5);
+
+  expect(() => proceso.marcarEjecutando()).toThrow();
+  expect(() => proceso.ejecutarTick()).toThrow();
+  expect(() => proceso.reiniciarQuantum()).toThrow();
+  expect(() => proceso.marcarTerminado()).toThrow();
+
+  expect(proceso.obtenerEstado()).toBe(EstadoProceso.NUEVO);
+  expect(proceso.obtenerCpuRestante()).toBe(5);
 });
 });

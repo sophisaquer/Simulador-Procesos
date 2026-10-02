@@ -48,19 +48,50 @@ private eventoEntradaSalidaDisparado: boolean = false;
   obtenerTiempoBloqueoRestante(): number {
     return this.tiempoBloqueoRestante;
   }
-  marcarEsperandoMemoria(): void {
+marcarEsperandoMemoria(): void {
+  if (
+    this.estado !== EstadoProceso.NUEVO &&
+    this.estado !== EstadoProceso.ESPERANDO_MEMORIA
+  ) {
+    throw new Error(
+      "el proceso no puede pasar a esperando memoria desde su estado actual"
+    );
+  }
+
   this.estado = EstadoProceso.ESPERANDO_MEMORIA;
 }
 
 marcarListo(): void {
+  if (
+    this.estado !== EstadoProceso.NUEVO &&
+    this.estado !== EstadoProceso.ESPERANDO_MEMORIA &&
+    this.estado !== EstadoProceso.EJECUTANDO
+  ) {
+    throw new Error(
+      "el proceso no puede pasar a listo desde su estado actual"
+    );
+  }
+
   this.estado = EstadoProceso.LISTO;
 }
 
 marcarEjecutando(): void {
+  if (this.estado !== EstadoProceso.LISTO) {
+    throw new Error(
+      "solo un proceso listo puede pasar a ejecutando"
+    );
+  }
+
   this.estado = EstadoProceso.EJECUTANDO;
 }
 
 ejecutarTick(): void {
+  if (this.estado !== EstadoProceso.EJECUTANDO) {
+    throw new Error(
+      "solo un proceso en ejecución puede consumir CPU"
+    );
+  }
+
   if (this.cpuRestante > 0) {
     this.cpuRestante--;
     this.quantumConsumido++;
@@ -68,10 +99,25 @@ ejecutarTick(): void {
 }
 
 reiniciarQuantum(): void {
+  if (this.estado !== EstadoProceso.EJECUTANDO) {
+    throw new Error(
+      "solo un proceso en ejecución puede reiniciar su quantum"
+    );
+  }
+
   this.quantumConsumido = 0;
 }
 
 marcarTerminado(): void {
+  if (
+    this.estado !== EstadoProceso.EJECUTANDO ||
+    this.cpuRestante !== 0
+  ) {
+    throw new Error(
+      "solo puede terminar un proceso que agotó su CPU"
+    );
+  }
+
   this.estado = EstadoProceso.TERMINADO;
 }
 
@@ -104,6 +150,7 @@ debeBloquearsePorEntradaSalida(): boolean {
     this.tiempoCpuTotal - this.cpuRestante;
 
   return (
+    this.estado === EstadoProceso.EJECUTANDO &&
     !this.eventoEntradaSalidaDisparado &&
     this.disparoEntradaSalida !== null &&
     cpuConsumida === this.disparoEntradaSalida &&
