@@ -74,6 +74,18 @@ avanzarTick(): void {
     }
   }
 
+  for (const proceso of this.procesos) {
+  if (proceso.obtenerEstado() !== EstadoProceso.BLOQUEADO) {
+    continue;
+  }
+
+  const terminoBloqueo = proceso.actualizarBloqueo();
+
+  if (terminoBloqueo) {
+    this.planificador.encolar(proceso);
+  }
+}
+
   if (this.procesoEnCpu === null) {
     this.procesoEnCpu = this.planificador.desencolar() ?? null;
 
@@ -87,20 +99,25 @@ if (this.procesoEnCpu !== null) {
   this.procesoEnCpu.ejecutarTick();
 
   if (this.procesoEnCpu.obtenerCpuRestante() === 0) {
-    this.procesoEnCpu.marcarTerminado();
-    this.memoria.liberarMemoria(this.procesoEnCpu.pid);
+  this.procesoEnCpu.marcarTerminado();
+  this.memoria.liberarMemoria(this.procesoEnCpu.pid);
+  this.procesoEnCpu = null;
+} else if (
+  this.procesoEnCpu.debeBloquearsePorEntradaSalida()
+) {
+  this.procesoEnCpu.bloquearPorEntradaSalida();
+  this.procesoEnCpu = null;
+} else if (
+  this.procesoEnCpu.obtenerQuantumConsumido() === this.quantum
+) {
+  if (!this.planificador.estaVacia()) {
+    this.procesoEnCpu.marcarListo();
+    this.planificador.encolar(this.procesoEnCpu);
     this.procesoEnCpu = null;
-  } else if (
-    this.procesoEnCpu.obtenerQuantumConsumido() === this.quantum
-  ) {
-    if (!this.planificador.estaVacia()) {
-      this.procesoEnCpu.marcarListo();
-      this.planificador.encolar(this.procesoEnCpu);
-      this.procesoEnCpu = null;
-    } else {
-      this.procesoEnCpu.reiniciarQuantum();
-    }
+  } else {
+    this.procesoEnCpu.reiniciarQuantum();
   }
+}
 }
 
   this.tick++;
