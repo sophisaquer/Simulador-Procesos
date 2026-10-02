@@ -119,4 +119,20 @@ it("permite que solo un proceso consuma CPU por tick", () => {
   expect(procesos[1].obtenerCpuRestante()).toBe(5);
   expect(procesos[1].obtenerEstado()).toBe(EstadoProceso.LISTO);
 });
+
+it("finaliza un proceso y libera su memoria en el mismo tick", () => {
+  const simulador = new Simulador(1024, 2);
+
+  simulador.registrarProceso(1, 256, 1);
+  simulador.avanzarTick();
+
+  const proceso = simulador.obtenerProcesos()[0];
+  const bloques = simulador.memoria.obtenerBloques();
+
+  expect(proceso.obtenerEstado()).toBe(EstadoProceso.TERMINADO);
+  expect(proceso.obtenerCpuRestante()).toBe(0);
+  expect(bloques).toHaveLength(1);
+  expect(bloques[0].estaLibre()).toBe(true);
+  expect(bloques[0].tamanio).toBe(1024);
+});
 });
