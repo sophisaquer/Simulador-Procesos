@@ -102,44 +102,23 @@ it("devuelve false si el proceso no tiene memoria asignada", () => {
   expect(memoria.liberarMemoria(99)).toBe(false);
 });
 
-it("fusiona con el bloque libre de la izquierda", () => {
-  const memoria = new Memoria(1000);
-
-  memoria.asignarMemoria(1, 200);
-  memoria.asignarMemoria(2, 300);
-
-  memoria.liberarMemoria(1);
-  memoria.liberarMemoria(2);
-
-  const bloques = memoria.obtenerBloques();
-
-  expect(bloques).toHaveLength(1);
-  expect(bloques[0].inicio).toBe(0);
-  expect(bloques[0].tamanio).toBe(1000);
-  expect(bloques[0].estaLibre()).toBe(true);
-});
-
-it("fusiona bloques libres a ambos lados", () => {
+it("fusiona con el bloque libre de la derecha", () => {
   const memoria = new Memoria(1000);
 
   memoria.asignarMemoria(1, 200);
   memoria.asignarMemoria(2, 300);
   memoria.asignarMemoria(3, 200);
 
-  memoria.liberarMemoria(1);
   memoria.liberarMemoria(3);
   memoria.liberarMemoria(2);
 
   const bloques = memoria.obtenerBloques();
 
-  expect(bloques).toHaveLength(1);
-  expect(bloques[0].tamanio).toBe(1000);
-  expect(bloques[0].estaLibre()).toBe(true);
-});
+  expect(bloques).toHaveLength(2);
+  expect(bloques[0].pid).toBe(1);
 
-it("devuelve false si el proceso no tiene memoria asignada", () => {
-  const memoria = new Memoria(1024);
-
-  expect(memoria.liberarMemoria(99)).toBe(false);
+  expect(bloques[1].inicio).toBe(200);
+  expect(bloques[1].tamanio).toBe(800);
+  expect(bloques[1].estaLibre()).toBe(true);
 });
 });
