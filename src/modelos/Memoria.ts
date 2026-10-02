@@ -25,10 +25,23 @@ export class Memoria implements IMemoria {
   }
 
   asignarMemoria(pid: number, tamanioRequerido: number): boolean {
-    const indice = this.politica.buscarBloque(
-      this.bloques,
-      tamanioRequerido
+  if (!Number.isInteger(pid) || pid <= 0) {
+    throw new Error("el PID debe ser un entero positivo");
+  }
+
+  if (
+    !Number.isInteger(tamanioRequerido) ||
+    tamanioRequerido <= 0
+  ) {
+    throw new Error(
+      "el tamaño requerido debe ser un entero positivo"
     );
+  }
+
+  const indice = this.politica.buscarBloque(
+    this.bloques,
+    tamanioRequerido
+  );
 
     if (indice === -1) {
       return false;

@@ -122,3 +122,22 @@ it("fusiona con el bloque libre de la derecha", () => {
   expect(bloques[1].estaLibre()).toBe(true);
 });
 });
+
+it("rechaza parámetros inválidos al asignar memoria", () => {
+  const memoria = new Memoria(1024);
+
+  expect(() => memoria.asignarMemoria(0, 100)).toThrow();
+  expect(() => memoria.asignarMemoria(-1, 100)).toThrow();
+  expect(() => memoria.asignarMemoria(1.5, 100)).toThrow();
+
+  expect(() => memoria.asignarMemoria(1, 0)).toThrow();
+  expect(() => memoria.asignarMemoria(1, -100)).toThrow();
+  expect(() => memoria.asignarMemoria(1, 100.5)).toThrow();
+
+  const bloques = memoria.obtenerBloques();
+
+  expect(bloques).toHaveLength(1);
+  expect(bloques[0].inicio).toBe(0);
+  expect(bloques[0].tamanio).toBe(1024);
+  expect(bloques[0].estaLibre()).toBe(true);
+});
