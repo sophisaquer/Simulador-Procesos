@@ -25,15 +25,14 @@ describe("PlanificadorRoundRobin", () => {
     expect(planificador.estaVacia()).toBe(false);
   });
 
-  it("permite consultar la cola", () => {
-    const planificador = new PlanificadorRoundRobin();
-    const proceso = new Proceso(1, 100, 5);
+ it("permite consultar el orden de la cola sin exponer procesos", () => {
+   const planificador = new PlanificadorRoundRobin();
+   const proceso = new Proceso(1, 100, 5);
 
-    planificador.encolar(proceso);
+   planificador.encolar(proceso);
 
-    const cola = planificador.obtenerCola();
+   const pids = planificador.obtenerPids();
 
-    expect(cola).toHaveLength(1);
-    expect(cola[0].pid).toBe(1);
+   expect(pids).toEqual([1]);
   });
 });

@@ -12,8 +12,8 @@ export class PlanificadorRoundRobin implements IPlanificador {
     return this.cola.shift();
   }
 
-  obtenerCola(): readonly IProceso[] {
-    return [...this.cola];
+ obtenerPids(): readonly number[] {
+   return this.cola.map((proceso) => proceso.pid);
   }
 
   estaVacia(): boolean {

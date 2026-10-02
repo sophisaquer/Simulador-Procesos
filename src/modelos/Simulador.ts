@@ -141,10 +141,20 @@ obtenerEstado(): IEstadoSistema {
         ? null
         : this.crearVistaProceso(this.procesoEnCpu),
 
-    listos: this.planificador
-      .obtenerCola()
-      .map((proceso) => this.crearVistaProceso(proceso)),
+listos: this.planificador
+  .obtenerPids()
+  .map((pid) => {
+    const proceso = this.procesos.find(
+      (proceso) => proceso.pid === pid
+    );
 
+    if (proceso === undefined) {
+      throw new Error("proceso listo no registrado");
+    }
+
+    return this.crearVistaProceso(proceso);
+  }),
+  
     esperandoMemoria: this.procesos
       .filter(
         (proceso) =>

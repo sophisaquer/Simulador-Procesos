@@ -3,6 +3,6 @@ import { IProceso } from "./IProceso";
 export interface IPlanificador {
   encolar(proceso: IProceso): void;
   desencolar(): IProceso | undefined;
-  obtenerCola(): readonly IProceso[];
+  obtenerPids(): readonly number[];
   estaVacia(): boolean;
 }
