@@ -1,6 +1,7 @@
 import { IMemoria } from "./IMemoria";
 import { IProceso } from "./IProceso";
 import { IMetricas } from "./IMetricas";
+import { IEstadoSistema } from "./IEstadoSistema";
 
 export interface ISimulador {
   readonly quantum: number;
@@ -14,8 +15,10 @@ export interface ISimulador {
   ): void;
 
   obtenerProcesos(): readonly IProceso[];
-
-obtenerMetricas(): IMetricas;
+  
+  obtenerMetricas(): IMetricas
+  
+  obtenerEstado(): IEstadoSistema;
 
   avanzarTick(): void;
 }

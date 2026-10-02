@@ -7,6 +7,10 @@ import { EstadoProceso } from "./EstadoProceso";
 import { IPlanificador } from "../interfaces/IPlanificador";
 import { PlanificadorRoundRobin } from "./PlanificadorRoundRobin";
 import { IMetricas } from "../interfaces/IMetricas";
+import {
+  IEstadoSistema,
+  IVistaProceso,
+} from "../interfaces/IEstadoSistema";
 
 export class Simulador implements ISimulador {
   public readonly memoria: IMemoria;
@@ -92,6 +96,59 @@ private cambiosContexto: number = 0;
     memoriaLibreTotal,
     mayorBloqueLibre,
     fragmentacionExterna,
+  };
+}
+
+private crearVistaProceso(proceso: IProceso): IVistaProceso {
+  return {
+    pid: proceso.pid,
+    estado: proceso.obtenerEstado(),
+    cpuRestante: proceso.obtenerCpuRestante(),
+    quantumConsumido: proceso.obtenerQuantumConsumido(),
+    tiempoBloqueoRestante: proceso.obtenerTiempoBloqueoRestante(),
+  };
+}
+
+obtenerEstado(): IEstadoSistema {
+  return {
+    tick: this.tick,
+
+    procesoEnCpu:
+      this.procesoEnCpu === null
+        ? null
+        : this.crearVistaProceso(this.procesoEnCpu),
+
+    listos: this.planificador
+      .obtenerCola()
+      .map((proceso) => this.crearVistaProceso(proceso)),
+
+    esperandoMemoria: this.procesos
+      .filter(
+        (proceso) =>
+          proceso.obtenerEstado() === EstadoProceso.ESPERANDO_MEMORIA
+      )
+      .map((proceso) => this.crearVistaProceso(proceso)),
+
+    bloqueados: this.procesos
+      .filter(
+        (proceso) =>
+          proceso.obtenerEstado() === EstadoProceso.BLOQUEADO
+      )
+      .map((proceso) => this.crearVistaProceso(proceso)),
+
+    terminados: this.procesos
+      .filter(
+        (proceso) =>
+          proceso.obtenerEstado() === EstadoProceso.TERMINADO
+      )
+      .map((proceso) => this.crearVistaProceso(proceso)),
+
+    mapaMemoria: this.memoria.obtenerBloques().map((bloque) => ({
+      inicio: bloque.inicio,
+      tamanio: bloque.tamanio,
+      pid: bloque.pid,
+      libre: bloque.estaLibre(),
+    })),
   };
 }
 
