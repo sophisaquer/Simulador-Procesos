@@ -9,4 +9,6 @@ export interface IProceso {
   obtenerEstado(): EstadoProceso;
   obtenerQuantumConsumido(): number;
   obtenerTiempoBloqueoRestante(): number;
+  marcarEsperandoMemoria(): void;
+  marcarListo(): void;
 }

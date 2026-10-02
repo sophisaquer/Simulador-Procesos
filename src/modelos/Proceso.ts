@@ -45,4 +45,11 @@ export class Proceso implements IProceso {
   obtenerTiempoBloqueoRestante(): number {
     return this.tiempoBloqueoRestante;
   }
+  marcarEsperandoMemoria(): void {
+  this.estado = EstadoProceso.ESPERANDO_MEMORIA;
+}
+
+marcarListo(): void {
+  this.estado = EstadoProceso.LISTO;
+}
 }
