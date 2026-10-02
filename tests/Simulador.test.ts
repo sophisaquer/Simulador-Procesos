@@ -214,4 +214,35 @@ it("retorna a listo después del bloqueo y puede volver a ejecutar", () => {
   expect(proceso.obtenerEstado()).toBe(EstadoProceso.EJECUTANDO);
   expect(proceso.obtenerCpuRestante()).toBe(3);
 });
+
+it("inicia las métricas con los valores correctos", () => {
+  const simulador = new Simulador(1000, 2);
+
+  const metricas = simulador.obtenerMetricas();
+
+  expect(metricas.ocupacionMemoria).toBe(0);
+  expect(metricas.utilizacionCpu).toBe(0);
+  expect(metricas.cambiosContexto).toBe(0);
+  expect(metricas.memoriaLibreTotal).toBe(1000);
+  expect(metricas.mayorBloqueLibre).toBe(1000);
+  expect(metricas.fragmentacionExterna).toBe(0);
+});
+
+it("calcula la fragmentación externa de la memoria", () => {
+  const simulador = new Simulador(600, 2);
+
+  simulador.memoria.asignarMemoria(1, 100);
+  simulador.memoria.asignarMemoria(2, 100);
+  simulador.memoria.asignarMemoria(3, 100);
+  simulador.memoria.asignarMemoria(4, 300);
+
+  simulador.memoria.liberarMemoria(2);
+  simulador.memoria.liberarMemoria(4);
+
+  const metricas = simulador.obtenerMetricas();
+
+  expect(metricas.memoriaLibreTotal).toBe(400);
+  expect(metricas.mayorBloqueLibre).toBe(300);
+  expect(metricas.fragmentacionExterna).toBe(25);
+});
 });
