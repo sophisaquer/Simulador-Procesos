@@ -64,4 +64,45 @@ it("pasa al estado terminado", () => {
 
   expect(proceso.obtenerEstado()).toBe(EstadoProceso.TERMINADO);
 });
+
+it("se bloquea al alcanzar el momento de entrada y salida", () => {
+  const proceso = new Proceso(1, 256, 5);
+
+  proceso.configurarEntradaSalida(2, 2);
+
+  proceso.ejecutarTick();
+  proceso.ejecutarTick();
+
+  expect(proceso.debeBloquearsePorEntradaSalida()).toBe(true);
+
+  proceso.bloquearPorEntradaSalida();
+
+  expect(proceso.obtenerEstado()).toBe(EstadoProceso.BLOQUEADO);
+  expect(proceso.obtenerTiempoBloqueoRestante()).toBe(2);
+});
+
+it("vuelve a listo cuando termina el bloqueo", () => {
+  const proceso = new Proceso(1, 256, 5);
+
+  proceso.configurarEntradaSalida(1, 2);
+  proceso.ejecutarTick();
+  proceso.bloquearPorEntradaSalida();
+
+  expect(proceso.actualizarBloqueo()).toBe(false);
+  expect(proceso.obtenerTiempoBloqueoRestante()).toBe(1);
+  expect(proceso.obtenerEstado()).toBe(EstadoProceso.BLOQUEADO);
+
+  expect(proceso.actualizarBloqueo()).toBe(true);
+  expect(proceso.obtenerTiempoBloqueoRestante()).toBe(0);
+  expect(proceso.obtenerEstado()).toBe(EstadoProceso.LISTO);
+});
+
+it("rechaza eventos de entrada y salida inválidos", () => {
+  const proceso = new Proceso(1, 256, 5);
+
+  expect(() => proceso.configurarEntradaSalida(0, 2)).toThrow();
+  expect(() => proceso.configurarEntradaSalida(1, 0)).toThrow();
+  expect(() => proceso.configurarEntradaSalida(1.5, 2)).toThrow();
+  expect(() => proceso.configurarEntradaSalida(1, 2.5)).toThrow();
+});
 });
