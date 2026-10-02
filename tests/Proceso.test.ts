@@ -35,4 +35,33 @@ it("pasa al estado listo", () => {
 
   expect(proceso.obtenerEstado()).toBe(EstadoProceso.LISTO);
 });
+
+it("ejecuta un tick de CPU", () => {
+  const proceso = new Proceso(1, 256, 5);
+
+  proceso.marcarEjecutando();
+  proceso.ejecutarTick();
+
+  expect(proceso.obtenerEstado()).toBe(EstadoProceso.EJECUTANDO);
+  expect(proceso.obtenerCpuRestante()).toBe(4);
+  expect(proceso.obtenerQuantumConsumido()).toBe(1);
+});
+
+it("reinicia el quantum consumido", () => {
+  const proceso = new Proceso(1, 256, 5);
+
+  proceso.ejecutarTick();
+  proceso.ejecutarTick();
+  proceso.reiniciarQuantum();
+
+  expect(proceso.obtenerQuantumConsumido()).toBe(0);
+});
+
+it("pasa al estado terminado", () => {
+  const proceso = new Proceso(1, 256, 5);
+
+  proceso.marcarTerminado();
+
+  expect(proceso.obtenerEstado()).toBe(EstadoProceso.TERMINADO);
+});
 });
