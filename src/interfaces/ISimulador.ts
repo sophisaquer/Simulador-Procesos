@@ -1,12 +1,12 @@
-import { IMemoria } from "./IMemoria";
-import { IProceso } from "./IProceso";
+import {
+  IEstadoSistema,
+  IVistaProceso,
+} from "./IEstadoSistema";
 import { IMetricas } from "./IMetricas";
-import { IEstadoSistema } from "./IEstadoSistema";
 
 export interface ISimulador {
   readonly quantum: number;
   readonly tickActual: number;
-  readonly memoria: IMemoria;
 
   registrarProceso(
     pid: number,
@@ -14,10 +14,16 @@ export interface ISimulador {
     tiempoCpuTotal: number
   ): void;
 
-  obtenerProcesos(): readonly IProceso[];
-  
-  obtenerMetricas(): IMetricas
-  
+  configurarEntradaSalida(
+    pid: number,
+    despuesDeTicksCpu: number,
+    duracion: number
+  ): void;
+
+  obtenerProcesos(): readonly IVistaProceso[];
+
+  obtenerMetricas(): IMetricas;
+
   obtenerEstado(): IEstadoSistema;
 
   avanzarTick(): void;

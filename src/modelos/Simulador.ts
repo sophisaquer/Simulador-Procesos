@@ -13,7 +13,7 @@ import {
 } from "../interfaces/IEstadoSistema";
 
 export class Simulador implements ISimulador {
-  public readonly memoria: IMemoria;
+  private readonly memoria: IMemoria;
   private tick: number = 0;
 
   private procesos: Proceso[] = [];
@@ -51,9 +51,30 @@ private cambiosContexto: number = 0;
     this.procesos.push(proceso);
   }
 
-  obtenerProcesos(): readonly IProceso[] {
-    return [...this.procesos];
+  configurarEntradaSalida(
+  pid: number,
+  despuesDeTicksCpu: number,
+  duracion: number
+): void {
+  const proceso = this.procesos.find(
+    (proceso) => proceso.pid === pid
+  );
+
+  if (proceso === undefined) {
+    throw new Error("el proceso no está registrado");
   }
+
+  proceso.configurarEntradaSalida(
+    despuesDeTicksCpu,
+    duracion
+  );
+}
+
+obtenerProcesos(): readonly IVistaProceso[] {
+  return this.procesos.map((proceso) =>
+    this.crearVistaProceso(proceso)
+  );
+}
 
   get tickActual(): number {
     return this.tick;
@@ -102,6 +123,8 @@ private cambiosContexto: number = 0;
 private crearVistaProceso(proceso: IProceso): IVistaProceso {
   return {
     pid: proceso.pid,
+    memoriaRequerida: proceso.memoriaRequerida,
+    tiempoCpuTotal: proceso.tiempoCpuTotal,
     estado: proceso.obtenerEstado(),
     cpuRestante: proceso.obtenerCpuRestante(),
     quantumConsumido: proceso.obtenerQuantumConsumido(),

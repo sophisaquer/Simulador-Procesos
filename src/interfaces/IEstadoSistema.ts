@@ -2,6 +2,8 @@ import { EstadoProceso } from "../modelos/EstadoProceso";
 
 export interface IVistaProceso {
   readonly pid: number;
+  readonly memoriaRequerida: number;
+  readonly tiempoCpuTotal: number;
   readonly estado: EstadoProceso;
   readonly cpuRestante: number;
   readonly quantumConsumido: number;
