@@ -287,4 +287,57 @@ it("cuenta un cambio de contexto cuando un proceso se bloquea", () => {
 
   expect(metricas.cambiosContexto).toBe(1);
 });
+
+it("consulta el proceso en cpu la cola de listos y el mapa de memoria", () => {
+  const simulador = new Simulador(1024, 2);
+
+  simulador.registrarProceso(1, 256, 5);
+  simulador.registrarProceso(2, 256, 5);
+
+  simulador.avanzarTick();
+
+  const estado = simulador.obtenerEstado();
+
+  expect(estado.tick).toBe(1);
+  expect(estado.procesoEnCpu?.pid).toBe(1);
+  expect(estado.listos.map((proceso) => proceso.pid)).toEqual([2]);
+
+  expect(
+    estado.mapaMemoria.map((bloque) => bloque.pid)
+  ).toEqual([1, 2, null]);
+});
+
+it("consulta procesos bloqueados esperando memoria y terminados", () => {
+  const bloqueado = new Simulador(1024, 2);
+  bloqueado.registrarProceso(1, 256, 5);
+
+  bloqueado
+    .obtenerProcesos()[0]
+    .configurarEntradaSalida(1, 2);
+
+  bloqueado.avanzarTick();
+
+  expect(
+    bloqueado.obtenerEstado().bloqueados.map((proceso) => proceso.pid)
+  ).toEqual([1]);
+
+  const esperando = new Simulador(1024, 2);
+  esperando.memoria.asignarMemoria(99, 1024);
+  esperando.registrarProceso(2, 256, 5);
+  esperando.avanzarTick();
+
+  expect(
+    esperando.obtenerEstado().esperandoMemoria.map(
+      (proceso) => proceso.pid
+    )
+  ).toEqual([2]);
+
+  const terminado = new Simulador(1024, 2);
+  terminado.registrarProceso(3, 256, 1);
+  terminado.avanzarTick();
+
+  expect(
+    terminado.obtenerEstado().terminados.map((proceso) => proceso.pid)
+  ).toEqual([3]);
+});
 });
