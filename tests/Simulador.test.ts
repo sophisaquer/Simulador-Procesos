@@ -340,4 +340,32 @@ it("consulta procesos bloqueados esperando memoria y terminados", () => {
     terminado.obtenerEstado().terminados.map((proceso) => proceso.pid)
   ).toEqual([3]);
 });
+
+it("respeta la secuencia completa de round robin", () => {
+  const simulador = new Simulador(1024, 2);
+
+  simulador.registrarProceso(1, 256, 3);
+  simulador.registrarProceso(2, 256, 2);
+
+  const procesos = simulador.obtenerProcesos();
+
+  simulador.avanzarTick();
+  expect(procesos[0].obtenerCpuRestante()).toBe(2);
+  expect(procesos[1].obtenerCpuRestante()).toBe(2);
+
+  simulador.avanzarTick();
+  expect(procesos[0].obtenerCpuRestante()).toBe(1);
+  expect(procesos[1].obtenerCpuRestante()).toBe(2);
+
+  simulador.avanzarTick();
+  expect(procesos[1].obtenerCpuRestante()).toBe(1);
+
+  simulador.avanzarTick();
+  expect(procesos[1].obtenerCpuRestante()).toBe(0);
+
+  simulador.avanzarTick();
+  expect(procesos[0].obtenerCpuRestante()).toBe(0);
+
+  expect(simulador.obtenerMetricas().cambiosContexto).toBe(1);
+});
 });
