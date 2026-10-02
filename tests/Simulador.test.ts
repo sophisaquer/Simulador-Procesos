@@ -135,4 +135,41 @@ it("finaliza un proceso y libera su memoria en el mismo tick", () => {
   expect(bloques[0].estaLibre()).toBe(true);
   expect(bloques[0].tamanio).toBe(1024);
 });
+
+it("rota al proceso cuando agota el quantum y hay otro listo", () => {
+  const simulador = new Simulador(1024, 2);
+
+  simulador.registrarProceso(1, 256, 5);
+  simulador.registrarProceso(2, 256, 5);
+
+  simulador.avanzarTick();
+  simulador.avanzarTick();
+
+  let procesos = simulador.obtenerProcesos();
+
+  expect(procesos[0].obtenerEstado()).toBe(EstadoProceso.LISTO);
+  expect(procesos[0].obtenerCpuRestante()).toBe(3);
+
+  simulador.avanzarTick();
+
+  procesos = simulador.obtenerProcesos();
+
+  expect(procesos[1].obtenerEstado()).toBe(EstadoProceso.EJECUTANDO);
+  expect(procesos[1].obtenerCpuRestante()).toBe(4);
+});
+
+it("renueva el quantum si no hay otro proceso listo", () => {
+  const simulador = new Simulador(1024, 2);
+
+  simulador.registrarProceso(1, 256, 5);
+
+  simulador.avanzarTick();
+  simulador.avanzarTick();
+
+  const proceso = simulador.obtenerProcesos()[0];
+
+  expect(proceso.obtenerEstado()).toBe(EstadoProceso.EJECUTANDO);
+  expect(proceso.obtenerCpuRestante()).toBe(3);
+  expect(proceso.obtenerQuantumConsumido()).toBe(0);
+});
 });
