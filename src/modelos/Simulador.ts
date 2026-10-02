@@ -83,9 +83,15 @@ avanzarTick(): void {
     }
   }
 
-  if (this.procesoEnCpu !== null) {
-    this.procesoEnCpu.ejecutarTick();
+ if (this.procesoEnCpu !== null) {
+  this.procesoEnCpu.ejecutarTick();
+
+  if (this.procesoEnCpu.obtenerCpuRestante() === 0) {
+    this.procesoEnCpu.marcarTerminado();
+    this.memoria.liberarMemoria(this.procesoEnCpu.pid);
+    this.procesoEnCpu = null;
   }
+}
 
   this.tick++;
 }
