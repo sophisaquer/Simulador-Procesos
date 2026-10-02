@@ -15,4 +15,13 @@ export interface IProceso {
   ejecutarTick(): void;
   reiniciarQuantum(): void;
   marcarTerminado(): void;
+
+  configurarEntradaSalida(
+  despuesDeTicksCpu: number,
+  duracion: number
+): void;
+
+debeBloquearsePorEntradaSalida(): boolean;
+bloquearPorEntradaSalida(): void;
+actualizarBloqueo(): boolean;
 }
