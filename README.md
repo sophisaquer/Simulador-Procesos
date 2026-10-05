@@ -223,7 +223,7 @@ El comportamiento del simulador se verifica mediante tests automatizados.
 ## Documentación
 
 - Informe técnico: `docs/AE2_Informe_Saquer.pdf`
-- Bitácora: `docs/AE2_Bitácora_Saquer.pdf`
+- Bitácora: `docs/AE2_Bitacora_Saquer.pdf`
 - Diagrama de clases (PNG y editable): `docs/diagramas/diagrama-clases.png` y `docs/diagramas/diagrama-clases.drawio`
 - Diagramas de secuencia (PNG y editables) en `docs/diagramas/`:
   - Admisión y asignación de memoria (RF03/RF04): `secuencia-admision`
