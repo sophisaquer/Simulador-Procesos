@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { Memoria } from "../src/modelos/Memoria";
+import { FirstFit } from "../src/modelos/FirstFit";
+import { BestFit } from "../src/modelos/BestFit";
+import { WorstFit } from "../src/modelos/WorstFit";
+import { IPoliticaAsignacion } from "../src/interfaces/IPoliticaAsignacion";
 
 describe("Memoria", () => {
   it("inicia con un único bloque libre del tamaño total", () => {
@@ -145,4 +149,27 @@ it("rechaza parámetros inválidos al asignar memoria", () => {
   expect(bloques[0].tamanio).toBe(1024);
   expect(bloques[0].estaLibre()).toBe(true);
 });
+
+  it("asigna distinto según la política sin modificar Memoria", () => {
+    const asignarConPolitica = (politica: IPoliticaAsignacion): number => {
+      const memoria = new Memoria(1000, politica);
+
+      memoria.asignarMemoria(1, 200);
+      memoria.asignarMemoria(2, 50);
+      memoria.asignarMemoria(3, 100);
+      memoria.asignarMemoria(4, 50);
+      memoria.liberarMemoria(1);
+      memoria.liberarMemoria(3);
+      // huecos libres: 0 (200), 250 (100) y 400 (600)
+
+      memoria.asignarMemoria(5, 80);
+
+      const bloque = memoria.obtenerBloques().find((b) => b.pid === 5);
+      return bloque?.inicio ?? -1;
+    };
+
+    expect(asignarConPolitica(new FirstFit())).toBe(0);
+    expect(asignarConPolitica(new BestFit())).toBe(250);
+    expect(asignarConPolitica(new WorstFit())).toBe(400);
+  });
 });
