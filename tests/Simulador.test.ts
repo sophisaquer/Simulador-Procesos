@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { Simulador } from "../src/modelos/Simulador";
 import { EstadoProceso } from "../src/modelos/EstadoProceso";
+import { BestFit } from "../src/modelos/BestFit";
 
 describe("Simulador", () => {
   it("inicia con la configuración indicada", () => {
@@ -660,5 +661,28 @@ describe("Simulador", () => {
     );
 
     expect(tamanioTotal).toBe(1000);
+  });
+
+    it("permite elegir la política de asignación", () => {
+    const simulador = new Simulador(1000, 1, new BestFit());
+
+    simulador.registrarProceso(1, 200, 1);
+    simulador.registrarProceso(2, 50, 10);
+    simulador.registrarProceso(3, 100, 1);
+    simulador.registrarProceso(4, 50, 10);
+
+    simulador.avanzarTick();
+    simulador.avanzarTick();
+    simulador.avanzarTick();
+    // terminaron P1 y P3: huecos en 0 (200), 250 (100) y 400 (600)
+
+    simulador.registrarProceso(5, 80, 5);
+    simulador.avanzarTick();
+
+    const bloque = simulador
+      .obtenerEstado()
+      .mapaMemoria.find((b) => b.pid === 5);
+
+    expect(bloque?.inicio).toBe(250);
   });
 });

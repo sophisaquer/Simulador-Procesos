@@ -11,6 +11,8 @@ import {
   IEstadoSistema,
   IVistaProceso,
 } from "../interfaces/IEstadoSistema";
+import { IPoliticaAsignacion } from "../interfaces/IPoliticaAsignacion";
+import { FirstFit } from "./FirstFit";
 
 export class Simulador implements ISimulador {
   private readonly memoria: IMemoria;
@@ -24,13 +26,14 @@ private cambiosContexto: number = 0;
 
   constructor(
     tamanioMemoria: number,
-    public readonly quantum: number
+    public readonly quantum: number,
+    politica: IPoliticaAsignacion = new FirstFit()
   ) {
     if (!Number.isInteger(quantum) || quantum <= 0) {
       throw new Error("el quantum debe ser un entero positivo");
     }
 
-    this.memoria = new Memoria(tamanioMemoria);
+        this.memoria = new Memoria(tamanioMemoria, politica);
     this.planificador = new PlanificadorRoundRobin();
   }
 
