@@ -88,7 +88,13 @@ Los procesos pueden encontrarse en los siguientes estados:
 
 La memoria se administra mediante bloques.
 
-Para la asignación se utiliza la política First Fit, que selecciona el primer bloque libre con tamaño suficiente para alojar al proceso.
+Para la asignación se puede elegir entre tres políticas, que implementan la interfaz `IPoliticaAsignacion`:
+
+- First Fit: elige el primer bloque libre suficiente.
+- Best Fit: elige el bloque libre suficiente de menor tamaño.
+- Worst Fit: elige el bloque libre suficiente de mayor tamaño.
+
+Ante empates se elige el bloque de menor dirección. Si no se indica ninguna, el simulador usa First Fit.
 
 Cuando un proceso termina, su memoria se libera. Los bloques libres adyacentes se fusionan para reducir la fragmentación externa.
 
