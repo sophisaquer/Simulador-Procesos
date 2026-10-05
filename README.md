@@ -57,7 +57,7 @@ El simulador permite:
 - configurar la memoria total y el quantum;
 - registrar procesos con PID, memoria requerida y tiempo total de CPU;
 - administrar los estados de los procesos;
-- asignar memoria mediante la política First Fit;
+- asignar memoria mediante las políticas First Fit, Best Fit o Worst Fit, seleccionables al crear el simulador;
 - dividir bloques de memoria cuando existe espacio sobrante;
 - liberar memoria y fusionar bloques libres adyacentes;
 - ejecutar la simulación de forma determinista por ticks;
