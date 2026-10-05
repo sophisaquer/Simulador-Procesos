@@ -219,3 +219,16 @@ El proyecto funciona como una biblioteca de clases.
 No utiliza interfaz gráfica ni menú de consola.
 
 El comportamiento del simulador se verifica mediante tests automatizados.
+
+## Documentación
+
+- Informe técnico: `docs/AE2_Informe_Saquer.pdf`
+- Bitácora: `docs/AE2_Bitácora_Saquer.pdf`
+- Diagrama de clases (PNG y editable): `docs/diagramas/diagrama-clases.png` y `docs/diagramas/diagrama-clases.drawio`
+- Diagramas de secuencia (PNG y editables) en `docs/diagramas/`:
+  - Admisión y asignación de memoria (RF03/RF04): `secuencia-admision`
+  - Tick de Round Robin (RF06/RF07): `secuencia-round-robin`
+  - Bloqueo y retorno por Entrada/Salida (RF08): `secuencia-entrada-salida`
+- Evidencias de tests, cobertura y CI: `docs/evidencias/`
+
+Versión entregada: tag `v1.0-ae2`.
